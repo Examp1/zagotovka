@@ -153,8 +153,9 @@
 	--theses-item-bg-primary: var(--brand-1-600);
 	--theses-item-bg-secondary: var(--brand-2-600);
 	--theses-item-bg-tone: var(--white-opacity-30);
-  }
-  [data-mode="dark"] {
+}
+
+[data-mode="dark"] {
 	/* colors */
 	--accordion-divider: var(--white-opacity-20);
 	--accordion-icon: var(--white-opacity-40);
@@ -309,4 +310,4 @@
 	--theses-item-bg-primary: var(--brand-1-600);
 	--theses-item-bg-secondary: var(--brand-2-600);
 	--theses-item-bg-tone: var(--gray-500);
-  }
+}

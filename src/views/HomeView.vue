@@ -1,11 +1,14 @@
 <template>
   <div class="home">
-    <h1>This is an home page</h1>
+    <app-img-and-text></app-img-and-text>
   </div>
 </template>
 
 <script>
+import appImgAndText from "@/components/app-img-and-text.vue"
+
 export default {
+  components: { appImgAndText },
   name: 'HomeView',
 }
 </script>

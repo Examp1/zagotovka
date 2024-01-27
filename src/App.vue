@@ -1,9 +1,5 @@
 <template>
-  <div
-    :data-theme="theme"
-    :data-mode="mode"
-    class="app"
-  >
+  <div class="app">
     <div class="aside">
       <div class="choose">
         <span>theme: {{ theme }}</span>
@@ -20,22 +16,30 @@
         <router-link to="/">home</router-link>
       </nav>
       <router-view></router-view>
-      <app-img-and-text></app-img-and-text>
     </div>
   </div>
 </template>
 
 <script>
-import AppImgAndText from './components/app-img-and-text.vue'
 export default {
-  components: { AppImgAndText },
   data() {
     return {
       theme: 'green-violet',
       mode: 'light'
     }
   },
-
+  watch: {
+    theme() {
+      document.body.dataset.theme = this.theme
+    },
+    mode() {
+      document.body.dataset.mode = this.mode
+    }
+  },
+  mounted() {
+    document.body.dataset.theme = this.theme
+    document.body.dataset.mode = this.mode
+  },
 }
 </script>
 
@@ -61,6 +65,7 @@ nav {
   height: fit-content;
   position: sticky;
   top: 0;
+
   .choose {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -70,6 +75,7 @@ nav {
 
   span {
     grid-column: 1/span 2;
+    color: var(--text-on-bg-on-default-text-primary);
   }
 }
 </style>

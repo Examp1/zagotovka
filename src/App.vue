@@ -8,6 +8,15 @@
         <span>mode: {{ mode }}</span>
         <button @click="mode = 'light'">light</button>
         <button @click="mode = 'dark'">dark</button>
+        <span class="custom">
+          <input
+            type="text"
+            v-model="themeName"
+            placeholder="theme name"
+          >
+          <textarea v-model="editorContent"></textarea>
+          <button @click="applyStyles">Apply Styles</button>
+        </span>
       </div>
     </div>
     <div class="container">
@@ -25,7 +34,11 @@ export default {
   data() {
     return {
       theme: 'green-violet',
-      mode: 'light'
+      mode: 'light',
+      editorContent: '',
+      themeName: '',
+      computedStyles: {},
+      localStorageThemes: localStorage.themes
     }
   },
   watch: {
@@ -34,6 +47,44 @@ export default {
     },
     mode() {
       document.body.dataset.mode = this.mode
+    }
+  },
+  methods: {
+    applyStyles() {
+      // Парсим введенный код с переменными CSS
+      const styles = this.parseCSSVariables(this.editorContent);
+
+      // Создаем селектор для темы и применяем стили
+      const themeSelector = `[data-theme="${this.themeName}"]`;
+      this.computedStyles = {
+        [themeSelector]: styles
+      };
+      if (!localStorage.themes?.length) {
+        localStorage.themes = JSON.stringify([{
+          name: themeSelector,
+          css: this.computedStyles
+        }])
+      } else {
+        const temp = JSON.parse(localStorage.themes)
+        temp.push({
+          name: themeSelector,
+          css: this.computedStyles
+        })
+        localStorage.themes = JSON.stringify(temp)
+      }
+      this.localStorageThemes = JSON.parse(localStorage.themes)
+    },
+    parseCSSVariables(code) {
+      // Парсим код с переменными CSS
+      const styles = {};
+      const lines = code.split('\n');
+      lines.forEach(line => {
+        const [property, value] = line.split(':').map(str => str.trim());
+        if (property && value) {
+          styles[property] = value;
+        }
+      });
+      return styles;
     }
   },
   mounted() {
@@ -77,5 +128,11 @@ nav {
     grid-column: 1/span 2;
     color: var(--text-on-bg-on-default-text-primary);
   }
+}
+
+.custom {
+  display: flex;
+  flex-direction: column;
+  grid-gap: 20px;
 }
 </style>

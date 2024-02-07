@@ -3,8 +3,13 @@
     <div class="aside">
       <div class="choose">
         <span>theme: {{ theme }}</span>
-        <button @click="theme = 'green-violet'">green-violet</button>
-        <button @click="theme = 'orange-teal'">orange-teal</button>
+        <button @click="setTheme('green-violet')">green-violet</button>
+        <button @click="setTheme('orange-teal')">orange-teal</button>
+        <button
+          v-for="theme in localStorageThemes"
+          :key="'theme' + '-' + theme.name"
+          @click="setTheme(theme.name)"
+        >{{ theme.name }}</button>
         <span>mode: {{ mode }}</span>
         <button @click="mode = 'light'">light</button>
         <button @click="mode = 'dark'">dark</button>
@@ -14,7 +19,10 @@
             v-model="themeName"
             placeholder="theme name"
           >
-          <textarea v-model="editorContent"></textarea>
+          <textarea
+            v-model="editorContent"
+            rows="3"
+          ></textarea>
           <button @click="applyStyles">Apply Styles</button>
         </span>
       </div>
@@ -38,7 +46,7 @@ export default {
       editorContent: '',
       themeName: '',
       computedStyles: {},
-      localStorageThemes: localStorage.themes
+      localStorageThemes: JSON.parse(localStorage.themes)
     }
   },
   watch: {
@@ -49,25 +57,27 @@ export default {
       document.body.dataset.mode = this.mode
     }
   },
-  methods: {
-    applyStyles() {
-      // Парсим введенный код с переменными CSS
-      const styles = this.parseCSSVariables(this.editorContent);
 
-      // Создаем селектор для темы и применяем стили
+  methods: {
+    setTheme(theme) {
+      this.theme = theme
+      this.addGlobalStyles()
+    },
+    applyStyles() {
+      const styles = this.parseCSSVariables(this.editorContent);
       const themeSelector = `[data-theme="${this.themeName}"]`;
       this.computedStyles = {
         [themeSelector]: styles
       };
       if (!localStorage.themes?.length) {
         localStorage.themes = JSON.stringify([{
-          name: themeSelector,
+          name: this.themeName,
           css: this.computedStyles
         }])
       } else {
         const temp = JSON.parse(localStorage.themes)
         temp.push({
-          name: themeSelector,
+          name: this.themeName,
           css: this.computedStyles
         })
         localStorage.themes = JSON.stringify(temp)
@@ -75,7 +85,6 @@ export default {
       this.localStorageThemes = JSON.parse(localStorage.themes)
     },
     parseCSSVariables(code) {
-      // Парсим код с переменными CSS
       const styles = {};
       const lines = code.split('\n');
       lines.forEach(line => {
@@ -85,7 +94,25 @@ export default {
         }
       });
       return styles;
-    }
+    },
+    addGlobalStyles() {
+      const styleElement = document.createElement('style');
+      let cssText = '';
+
+      const currentTheme = this.localStorageThemes.filter(el => el.name === this.theme)
+
+      const css = currentTheme[0].css
+      for (const selector in css) {
+        cssText += `${selector} {\n`;
+        for (const property in css[selector]) {
+          cssText += `  ${property}: ${css[selector][property]};\n`;
+        }
+        cssText += `}\n`;
+      }
+
+      styleElement.textContent = cssText;
+      document.head.appendChild(styleElement);
+    },
   },
   mounted() {
     document.body.dataset.theme = this.theme

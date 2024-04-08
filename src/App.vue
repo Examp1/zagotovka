@@ -2,6 +2,7 @@
   <div class="app">
     <div class="aside">
       <div class="choose">
+        <h1>test</h1>
         <span>theme: {{ theme }}</span>
         <button @click="setTheme('green-violet')">green-violet</button>
         <button @click="setTheme('orange-teal')">orange-teal</button>
